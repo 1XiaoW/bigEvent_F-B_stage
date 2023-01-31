@@ -82,7 +82,12 @@ $(function () {
         //将文件对象存储到fd当中
         fd.append('cover_img', blob);
         //发起Ajax请求
-        publishArticle(fd);
+        //如果网页内包含id，代表是从编辑按钮进入的页面将ajax请求改为更新文章接口
+        if (id) {
+          //为请求体加入Id属性
+          fd.append('Id', id);
+          updateArticle(id, fd);
+        } else publishArticle(fd);
       });
   });
 
@@ -106,6 +111,26 @@ $(function () {
     });
   }
 
+  //更新文章的方法
+  function updateArticle(id, fd) {
+    $.ajax({
+      method: 'POST',
+      url: '/my/article/edit',
+      data: fd,
+      //注意：如果向服务器提交的是formdata格式的数据
+      //必须添加以下两个配置项
+      contentType: false,
+      processData: false,
+      success: function (res) {
+        if (res.status !== 0) {
+          return layer.msg('更新文章失败！');
+        }
+        layer.msg('更新文章成功！');
+        location.href = '/article/art_list.html';
+      },
+    });
+  }
+
   //通过编辑页面进入渲染原始数据
   var url = window.location.href;
   var id = null;
@@ -118,11 +143,11 @@ $(function () {
         if (res.status !== 0) {
           return layui.layer.msg('1');
         }
-        console.log(res.data);
+        // console.log(res.data);
         form.val('formPublish', res.data);
         $image
           .cropper('destroy')
-          .attr('src', 'http://www.liulongbin.top:3007' + res.data.cover_img)
+          .attr('src', 'http://127.0.0.1:3007' + res.data.cover_img)
           .cropper(options);
       },
     });

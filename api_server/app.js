@@ -12,7 +12,10 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 //托管静态资源文件
-app.use('/uploads', express.static('./uploads'));
+const path = require('path');
+//使用相对路径挂载静态资源不生效，使用path.join拼接成绝对路径
+// app.use('/uploads',express.static('./uploads'));
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
 //一定要在路由之前，封装res.cc函数
 app.use((req, res, next) => {

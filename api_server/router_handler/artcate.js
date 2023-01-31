@@ -19,6 +19,11 @@ exports.getArtCates = (req, res) => {
 };
 
 //新增文章分类列表的处理函数
+//TODO:此处有bug如果你将分类删除后，想添加与刚删除的分类相同的名称与别名将会进入如下判断导致数据库含有重名的分类但是已经标记为删除。
+//解决方案：
+//1.改变表的结构（一劳永逸）直接删除分类不进行删除标记，但是可能会出现新的bug或安全性
+//2.改变sql语句仅判断is_delete=0的数据，也要改变表的结构。具体自己思考
+//以上仅是个人瞬间浮想出来的，没有经过准确的思考，仅供参考
 exports.addArtCates = (req, res) => {
   //1.定义查重的sql语句
   const sql = 'select * from ev_article_cate where name=? or alias=?';
@@ -58,7 +63,12 @@ exports.deleteCateById = (req, res) => {
   db.query(sql, req.params.id, (err, results) => {
     if (err) return res.cc(err);
     if (results.affectedRows !== 1) return res.cc('删除文章分类失败！');
-    res.cc('删除文章分类成功！', 0);
+    //当分类删除时，默认文章列表对应分类的文章全删除
+    const sql = 'update ev_articles set is_delete=1 where cate_id=?';
+    db.query(sql, req.params.id, (err, results) => {
+      if (err) return res.cc(err);
+      res.cc('删除文章分类成功！', 0);
+    });
   });
 };
 

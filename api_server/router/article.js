@@ -24,10 +24,20 @@ router.post(
   article_handler.addArticle
 );
 
-/*TODO：
-1.获取文章的列表数据
-2.根据Id删除文章数据
-3.根据Id获取文章详情
-4.根据Id更新文章信息
-*/
+//获取文章的列表数据
+router.get('/list', article_handler.getArticle);
+
+//根据Id删除文章数据
+router.get('/delete/:id', article_handler.deleteArticleById);
+
+//根据Id获取文章详情
+router.get('/:id', article_handler.getArticleById);
+
+//根据Id更新文章信息
+router.post(
+  '/edit',
+  uploads.single('cover_img'),
+  article_handler.updateArticle
+);
+
 module.exports = router;
